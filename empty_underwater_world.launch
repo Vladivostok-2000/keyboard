@@ -1,0 +1,60 @@
+   
+   <!--add launch empty_worl launch file with following arguments:-->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <!--make argument world_name = empty_underwater.world in world folder -->
+        <arg name="world_name" value="worlds/empty_underwater.world"/>
+        <!--start Gazebo in a paused state-->
+        <arg name="paused" value="$(arg paused)"/>
+        <!--get to Gazebo simulation time-->
+        <arg name="use_sim_time" value="true"/>
+        <!--starts user interface of Gazebo-->
+        <arg name="gui" value="$(arg gui)"/>
+        <!--disables gazebo state log recording-->
+        <arg name="headless" value="false"/>
+        <!--starts Gazebo Server in a debug mode-->
+        <arg name="debug" value="false"/>
+        <!--Prints errors and warnings on the terminal-->
+        <arg name="verbose" value="true"/>
+    </include>
+
+    <!--add launch file of rexrov robot without opening rviz-->
+    <include file="$(find uuv_descriptions)/launch/upload_rexrov.launch">
+        <!--set default mode-->
+        <arg name="mode" value="default"/>
+        <!--override namespace to arg namepsace-->
+        <arg name="namespace" value="$(arg namespace)"/>
+        <!--override x value-->
+        <arg name="x" value="$(arg x)"/>
+        <!--override y value-->
+        <arg name="y" value="$(arg y)"/>
+        <!--override z value-->
+        <arg name="z" value="$(arg z)"/>
+        <!--override yaw value (changing direction)-->
+        <arg name="yaw" value="$(arg yaw)"/>
+    </include>
+
+
+    <!--add teleop twist launching file-->
+    <include file="$(find uuv_teleop)/launch/uuv_teleop.launch">
+        <!--override uuv_name to arg namespace-->
+        <arg name="uuv_name" value="$(arg namespace)"/>
+        <!--override joy_id -->
+        <arg name="joy_id" value="$(arg joy_id)"/>
+        <!--put output topic to cmd_vel-->
+        <arg name="output_topic" value="cmd_vel"/>
+        <!---->
+        <arg name="message_type" value="twist"/>
+        <!--overriding values-->
+        <arg name="axis_yaw" value="$(arg axis_yaw)"/>
+        <arg name="axis_x" value="$(arg axis_x)"/>
+        <arg name="axis_y" value="$(arg axis_y)"/>
+        <arg name="axis_z" value="$(arg axis_z)"/>
+  </include>
+
+    <!--giving actual path to the topic: rexrov/cmd_vel-->
+	<arg name="cmd_vel" default="rexrov/cmd_vel"/>
+    <!--launches teleop by teleop_twister_keyboard.py from teleop__twister_keyboard package and sends it to the screen-->
+    <node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop" output="screen">
+        <!--remapping from cmd_vel to chaning arg of cmd_vel-->
+	    <remap from="cmd_vel" to="$(arg cmd_vel)"/>
+	</node>
